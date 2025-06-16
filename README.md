@@ -1,10 +1,10 @@
-# Welcome to your Lovable project
+# Believes Dominion Conference 2025
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/31f90ac3-a2c7-4a8f-9283-317fdc29073f
 
-## How can I edit this code?
+## Website for registering church congregants to the conference
 
 There are several ways of editing your application.
 
