@@ -116,7 +116,7 @@ const Home = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-conference-navy">Phone</h3>
-                  <p className="text-gray-600">+254 712 345 678</p>
+                  <p className="text-gray-600">+254 710-580275</p>
                 </div>
               </div>
 
@@ -126,7 +126,7 @@ const Home = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-conference-navy">Email</h3>
-                  <p className="text-gray-600">info@rgcheavensgate.com</p>
+                  <p className="text-gray-600">rgcheavensgatekaloleni@gmail.com</p>
                 </div>
               </div>
 
@@ -136,7 +136,7 @@ const Home = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-conference-navy">Address</h3>
-                  <p className="text-gray-600">RGC Heavens Gate, Kaloleni, Kenya</p>
+                  <p className="text-gray-600">Kaloleni, Kilifi-Kenya</p>
                 </div>
               </div>
             </div>
@@ -145,20 +145,16 @@ const Home = () => {
             <div>
               <h3 className="text-2xl font-bold text-conference-navy mb-6">Follow Us</h3>
               <div className="space-y-4">
-                <a href="#" className="flex items-center space-x-4 p-4 bg-conference-lightGrey rounded-lg hover:bg-gray-200 transition-colors duration-300">
+                <a href="https://www.facebook.com/heavensgatecenter" className="flex items-center space-x-4 p-4 bg-conference-lightGrey rounded-lg hover:bg-gray-200 transition-colors duration-300">
                   <Facebook className="text-conference-navy" size={24} />
-                  <span className="text-conference-navy font-medium">RGC Heavens Gate</span>
+                  <span className="text-conference-navy font-medium">Heavens Gate Centre</span>
                 </a>
 
-                <a href="#" className="flex items-center space-x-4 p-4 bg-conference-lightGrey rounded-lg hover:bg-gray-200 transition-colors duration-300">
+                <a href="https://www.instagram.com/heavens_gate_centre_kaloleni" className="flex items-center space-x-4 p-4 bg-conference-lightGrey rounded-lg hover:bg-gray-200 transition-colors duration-300">
                   <Instagram className="text-conference-navy" size={24} />
-                  <span className="text-conference-navy font-medium">@rgcheavensgate</span>
+                  <span className="text-conference-navy font-medium">@heavens_gate_centre_kaloleni</span>
                 </a>
 
-                <a href="#" className="flex items-center space-x-4 p-4 bg-conference-lightGrey rounded-lg hover:bg-gray-200 transition-colors duration-300">
-                  <Twitter className="text-conference-navy" size={24} />
-                  <span className="text-conference-navy font-medium">@rgcheavensgate</span>
-                </a>
               </div>
             </div>
           </div>

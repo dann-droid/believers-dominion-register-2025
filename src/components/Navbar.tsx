@@ -11,9 +11,13 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-gradient-to-br from-conference-maroon to-conference-navy rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">RGC</span>
+           <div className="w-10 h-10 bg-gradient-to-br from-conference-maroon to-conference-navy rounded-full flex items-center justify-center overflow-hidden">
+                <img
+                src="images.jpeg"
+                alt="Profile"
+                className="w-full h-full object-cover" />
             </div>
+
             <span className="text-conference-navy font-bold text-xl">RGC Heavens Gate</span>
           </Link>
 
