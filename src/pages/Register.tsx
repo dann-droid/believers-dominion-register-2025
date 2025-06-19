@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -23,13 +24,16 @@ const formSchema = z.object({
   accommodationMode: z.enum(['Daytime attendee', 'Boarder'], {
     required_error: 'Please select accommodation mode',
   }),
+  phoneNumber: z.string().regex(/^(\+254|254|0)[0-9]{9}$/, 'Please enter a valid Kenyan phone number'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 const Register = () => {
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [formData, setFormData] = useState<FormData | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [registrationId, setRegistrationId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'completed' | 'failed' | null>(null);
+  const [ticketInfo, setTicketInfo] = useState<any>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -39,6 +43,7 @@ const Register = () => {
       residentChurch: '',
       contact: '',
       email: '',
+      phoneNumber: '',
     },
   });
 
@@ -48,7 +53,6 @@ const Register = () => {
       'Usher': 500,
       'Media & Technical Team': 500,
       'Hospitality Crew': 500,
-      'Praise & Worship Team': 500,
       'Host': 1000,
       'Pastor': 1000,
     };
@@ -62,99 +66,183 @@ const Register = () => {
     return amount;
   };
 
-  const onSubmit = (data: FormData) => {
-    setFormData(data);
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmation = (confirmed: boolean) => {
-    if (confirmed && formData) {
-      const amount = calculateAmount(formData.position, formData.accommodationMode);
-      
-      toast({
-        title: "Registration Initiated",
-        description: `Please proceed to payment. Amount: KSH ${amount}`,
+  const checkPaymentStatus = async (regId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-payment-status', {
+        body: { registrationId: regId }
       });
 
-      // Here you would typically redirect to payment processing
-      // For now, we'll show a success message
-      setTimeout(() => {
+      if (error) throw error;
+
+      setPaymentStatus(data.paymentStatus);
+      
+      if (data.paymentStatus === 'completed') {
+        setTicketInfo(data);
         toast({
-          title: "Registration Successful!",
-          description: "Your ticket has been generated and sent to your email.",
+          title: "Payment Successful!",
+          description: `Your ticket number is: ${data.ticketNumber}`,
         });
-        setShowConfirmation(false);
-        form.reset();
-      }, 2000);
-    } else {
-      setShowConfirmation(false);
+      } else if (data.paymentStatus === 'failed') {
+        toast({
+          title: "Payment Failed",
+          description: "Please try again or contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
     }
   };
 
-  if (showConfirmation && formData) {
-    const amount = calculateAmount(formData.position, formData.accommodationMode);
+  const onSubmit = async (data: FormData) => {
+    setIsProcessing(true);
     
+    try {
+      const amount = calculateAmount(data.position, data.accommodationMode);
+      
+      toast({
+        title: "Processing Payment",
+        description: "Initiating M-Pesa payment...",
+      });
+
+      const { data: response, error } = await supabase.functions.invoke('mpesa-payment', {
+        body: {
+          phoneNumber: data.phoneNumber,
+          amount: amount,
+          registrationData: {
+            name: data.name,
+            email: data.email,
+            residentChurch: data.residentChurch,
+            contact: data.contact,
+            position: data.position,
+            accommodationMode: data.accommodationMode,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (response.success) {
+        setRegistrationId(response.registrationId);
+        setPaymentStatus('pending');
+        
+        toast({
+          title: "Payment Initiated",
+          description: "Please check your phone for M-Pesa prompt and enter your PIN.",
+        });
+
+        // Start polling for payment status
+        const pollInterval = setInterval(async () => {
+          await checkPaymentStatus(response.registrationId);
+          
+          // Stop polling after 2 minutes
+          setTimeout(() => {
+            clearInterval(pollInterval);
+          }, 120000);
+        }, 5000);
+
+      } else {
+        throw new Error(response.error || 'Payment initiation failed');
+      }
+
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Failed to initiate payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (paymentStatus === 'completed' && ticketInfo) {
     return (
       <div className="min-h-screen bg-conference-lightGrey py-12">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="shadow-2xl">
-            <CardHeader className="text-center bg-gradient-to-r from-conference-maroon to-conference-navy text-white rounded-t-lg">
-              <CardTitle className="text-2xl">Confirm Your Registration</CardTitle>
+            <CardHeader className="text-center bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-lg">
+              <CardTitle className="text-2xl">Registration Successful!</CardTitle>
               <CardDescription className="text-gray-200">
-                Please review your details before proceeding to payment
+                Your ticket has been generated
               </CardDescription>
             </CardHeader>
             <CardContent className="p-8">
-              <div className="space-y-4 mb-8">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Name:</Label>
-                    <p className="text-gray-700">{formData.name}</p>
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Church:</Label>
-                    <p className="text-gray-700">{formData.residentChurch}</p>
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Contact:</Label>
-                    <p className="text-gray-700">{formData.contact}</p>
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Email:</Label>
-                    <p className="text-gray-700">{formData.email}</p>
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Position:</Label>
-                    <p className="text-gray-700">{formData.position}</p>
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-conference-navy">Accommodation:</Label>
-                    <p className="text-gray-700">{formData.accommodationMode}</p>
-                  </div>
+              <div className="text-center space-y-6">
+                <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+                  <h3 className="text-xl font-bold text-green-800 mb-2">Ticket Number</h3>
+                  <p className="text-2xl font-mono text-green-900">{ticketInfo.ticketNumber}</p>
                 </div>
                 
-                <div className="bg-conference-gold/20 p-4 rounded-lg">
-                  <Label className="font-bold text-conference-navy text-lg">Total Amount:</Label>
-                  <p className="text-2xl font-bold text-conference-maroon">KSH {amount}</p>
+                <div className="space-y-3 text-left">
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Name:</span>
+                    <span>{ticketInfo.registrationData.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Position:</span>
+                    <span>{ticketInfo.registrationData.position}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Accommodation:</span>
+                    <span>{ticketInfo.registrationData.accommodationMode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Amount Paid:</span>
+                    <span>KSH {ticketInfo.registrationData.amount}</span>
+                  </div>
+                  {ticketInfo.mpesaReceipt && (
+                    <div className="flex justify-between">
+                      <span className="font-semibold">M-Pesa Receipt:</span>
+                      <span>{ticketInfo.mpesaReceipt}</span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div className="text-center space-y-4">
-                <p className="text-gray-600">Are you sure these details are correct?</p>
-                <div className="flex gap-4 justify-center">
-                  <Button 
-                    onClick={() => handleConfirmation(true)}
-                    className="bg-conference-maroon hover:bg-conference-maroon/90 px-8"
-                  >
-                    Yes, Proceed to Payment
-                  </Button>
-                  <Button 
-                    onClick={() => handleConfirmation(false)}
-                    variant="outline"
-                    className="border-conference-navy text-conference-navy hover:bg-conference-navy hover:text-white px-8"
-                  >
-                    No, Edit Details
-                  </Button>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-blue-800 text-sm">
+                    Please save this ticket number. You will need it for conference entry.
+                    A confirmation email will be sent to {ticketInfo.registrationData.email}.
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={() => window.location.reload()}
+                  className="bg-conference-maroon hover:bg-conference-maroon/90"
+                >
+                  Register Another Person
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentStatus === 'pending') {
+    return (
+      <div className="min-h-screen bg-conference-lightGrey py-12">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card className="shadow-2xl">
+            <CardHeader className="text-center bg-gradient-to-r from-yellow-600 to-orange-600 text-white rounded-t-lg">
+              <CardTitle className="text-2xl">Payment Processing</CardTitle>
+              <CardDescription className="text-gray-200">
+                Please complete the M-Pesa payment
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-8 text-center">
+              <div className="space-y-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-conference-maroon mx-auto"></div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Waiting for Payment</h3>
+                  <p className="text-gray-600 mb-4">
+                    Please check your phone for the M-Pesa prompt and enter your PIN to complete the payment.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    This page will automatically update once payment is confirmed.
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -188,6 +276,7 @@ const Register = () => {
                           placeholder="Enter your full name" 
                           {...field}
                           className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                          disabled={isProcessing}
                         />
                       </FormControl>
                       <FormMessage />
@@ -206,6 +295,7 @@ const Register = () => {
                           placeholder="Enter your church name" 
                           {...field}
                           className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                          disabled={isProcessing}
                         />
                       </FormControl>
                       <FormMessage />
@@ -224,6 +314,7 @@ const Register = () => {
                           placeholder="Enter your phone number (numbers only)" 
                           {...field}
                           className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                          disabled={isProcessing}
                         />
                       </FormControl>
                       <FormMessage />
@@ -243,6 +334,26 @@ const Register = () => {
                           placeholder="Enter your email address" 
                           {...field}
                           className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                          disabled={isProcessing}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-conference-navy font-semibold">M-Pesa Phone Number *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., 0712345678 or 254712345678" 
+                          {...field}
+                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                          disabled={isProcessing}
                         />
                       </FormControl>
                       <FormMessage />
@@ -256,7 +367,7 @@ const Register = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-conference-navy font-semibold">Position *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isProcessing}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon">
                             <SelectValue placeholder="Select your position" />
@@ -287,6 +398,7 @@ const Register = () => {
                           onValueChange={field.onChange}
                           value={field.value}
                           className="flex flex-col space-y-2"
+                          disabled={isProcessing}
                         >
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="Daytime attendee" id="daytime" />
@@ -303,11 +415,21 @@ const Register = () => {
                   )}
                 />
 
+                {form.watch('position') && form.watch('accommodationMode') && (
+                  <div className="bg-conference-gold/20 p-4 rounded-lg">
+                    <Label className="font-bold text-conference-navy text-lg">Amount to Pay:</Label>
+                    <p className="text-2xl font-bold text-conference-maroon">
+                      KSH {calculateAmount(form.watch('position'), form.watch('accommodationMode'))}
+                    </p>
+                  </div>
+                )}
+
                 <Button 
                   type="submit" 
                   className="w-full btn-conference text-lg py-6"
+                  disabled={isProcessing}
                 >
-                  Register
+                  {isProcessing ? 'Processing...' : 'Pay with M-Pesa'}
                 </Button>
               </form>
             </Form>
