@@ -9,7 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      registrations: {
+        Row: {
+          accommodation_mode: string
+          amount: number
+          checkout_request_id: string | null
+          contact: string
+          created_at: string
+          email: string
+          failure_reason: string | null
+          id: string
+          merchant_request_id: string | null
+          mpesa_receipt_number: string | null
+          name: string
+          payment_phone: string | null
+          payment_status: string | null
+          position: string
+          resident_church: string
+          ticket_number: string | null
+          transaction_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          accommodation_mode: string
+          amount: number
+          checkout_request_id?: string | null
+          contact: string
+          created_at?: string
+          email: string
+          failure_reason?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt_number?: string | null
+          name: string
+          payment_phone?: string | null
+          payment_status?: string | null
+          position: string
+          resident_church: string
+          ticket_number?: string | null
+          transaction_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accommodation_mode?: string
+          amount?: number
+          checkout_request_id?: string | null
+          contact?: string
+          created_at?: string
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt_number?: string | null
+          name?: string
+          payment_phone?: string | null
+          payment_status?: string | null
+          position?: string
+          resident_church?: string
+          ticket_number?: string | null
+          transaction_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
