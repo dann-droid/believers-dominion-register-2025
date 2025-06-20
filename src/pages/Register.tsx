@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import MpesaTestButton from '@/components/MpesaTestButton';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -254,187 +254,199 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-conference-lightGrey py-12">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Card className="shadow-2xl">
-          <CardHeader className="text-center bg-gradient-to-r from-conference-maroon to-conference-navy text-white rounded-t-lg">
-            <CardTitle className="text-3xl">Conference Registration</CardTitle>
-            <CardDescription className="text-gray-200">
-              Register for Believers Dominion Conference 2025
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Full Name *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter your full name" 
-                          {...field}
-                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
-                          disabled={isProcessing}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Test Button Column */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-4">
+              <MpesaTestButton />
+            </div>
+          </div>
 
-                <FormField
-                  control={form.control}
-                  name="residentChurch"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Resident Church *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter your church name" 
-                          {...field}
-                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
-                          disabled={isProcessing}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Registration Form Column */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-2xl">
+              <CardHeader className="text-center bg-gradient-to-r from-conference-maroon to-conference-navy text-white rounded-t-lg">
+                <CardTitle className="text-3xl">Conference Registration</CardTitle>
+                <CardDescription className="text-gray-200">
+                  Register for Believers Dominion Conference 2025
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Full Name *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Enter your full name" 
+                              {...field}
+                              className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                              disabled={isProcessing}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="contact"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Contact Number *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter your phone number (numbers only)" 
-                          {...field}
-                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
-                          disabled={isProcessing}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="residentChurch"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Resident Church *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Enter your church name" 
+                              {...field}
+                              className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                              disabled={isProcessing}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Email Address *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email"
-                          placeholder="Enter your email address" 
-                          {...field}
-                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
-                          disabled={isProcessing}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="contact"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Contact Number *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Enter your phone number (numbers only)" 
+                              {...field}
+                              className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                              disabled={isProcessing}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">M-Pesa Phone Number *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="e.g., 0712345678 or 254712345678" 
-                          {...field}
-                          className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
-                          disabled={isProcessing}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Email Address *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email"
+                              placeholder="Enter your email address" 
+                              {...field}
+                              className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                              disabled={isProcessing}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Position *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={isProcessing}>
-                        <FormControl>
-                          <SelectTrigger className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon">
-                            <SelectValue placeholder="Select your position" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Delegate">Delegate</SelectItem>
-                          <SelectItem value="Pastor">Pastor</SelectItem>
-                          <SelectItem value="Host">Host</SelectItem>
-                          <SelectItem value="Media & Technical Team">Media & Technical Team</SelectItem>
-                          <SelectItem value="Usher">Usher</SelectItem>
-                          <SelectItem value="Hospitality Crew">Hospitality Crew</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="phoneNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">M-Pesa Phone Number *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., 0712345678 or 254712345678" 
+                              {...field}
+                              className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon"
+                              disabled={isProcessing}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="accommodationMode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-conference-navy font-semibold">Accommodation Mode *</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex flex-col space-y-2"
-                          disabled={isProcessing}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Daytime attendee" id="daytime" />
-                            <Label htmlFor="daytime">Daytime attendee</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Boarder" id="boarder" />
-                            <Label htmlFor="boarder">Boarder</Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="position"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Position *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isProcessing}>
+                            <FormControl>
+                              <SelectTrigger className="border-gray-300 focus:border-conference-maroon focus:ring-conference-maroon">
+                                <SelectValue placeholder="Select your position" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Delegate">Delegate</SelectItem>
+                              <SelectItem value="Pastor">Pastor</SelectItem>
+                              <SelectItem value="Host">Host</SelectItem>
+                              <SelectItem value="Media & Technical Team">Media & Technical Team</SelectItem>
+                              <SelectItem value="Usher">Usher</SelectItem>
+                              <SelectItem value="Hospitality Crew">Hospitality Crew</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                {form.watch('position') && form.watch('accommodationMode') && (
-                  <div className="bg-conference-gold/20 p-4 rounded-lg">
-                    <Label className="font-bold text-conference-navy text-lg">Amount to Pay:</Label>
-                    <p className="text-2xl font-bold text-conference-maroon">
-                      KSH {calculateAmount(form.watch('position'), form.watch('accommodationMode'))}
-                    </p>
-                  </div>
-                )}
+                    <FormField
+                      control={form.control}
+                      name="accommodationMode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-conference-navy font-semibold">Accommodation Mode *</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              className="flex flex-col space-y-2"
+                              disabled={isProcessing}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="Daytime attendee" id="daytime" />
+                                <Label htmlFor="daytime">Daytime attendee</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="Boarder" id="boarder" />
+                                <Label htmlFor="boarder">Boarder</Label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <Button 
-                  type="submit" 
-                  className="w-full btn-conference text-lg py-6"
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? 'Processing...' : 'Pay with M-Pesa'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                    {form.watch('position') && form.watch('accommodationMode') && (
+                      <div className="bg-conference-gold/20 p-4 rounded-lg">
+                        <Label className="font-bold text-conference-navy text-lg">Amount to Pay:</Label>
+                        <p className="text-2xl font-bold text-conference-maroon">
+                          KSH {calculateAmount(form.watch('position'), form.watch('accommodationMode'))}
+                        </p>
+                      </div>
+                    )}
+
+                    <Button 
+                      type="submit" 
+                      className="w-full btn-conference text-lg py-6"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? 'Processing...' : 'Pay with M-Pesa'}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
