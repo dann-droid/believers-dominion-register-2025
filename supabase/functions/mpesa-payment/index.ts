@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -79,7 +78,7 @@ async function initiateSTKPush(token: string, phoneNumber: string, amount: numbe
     TransactionType: 'CustomerPayBillOnline',
     Amount: amount,
     PartyA: formattedPhone,
-    PartyB: '254759539169', // Updated to use the specific number
+    PartyB: shortcode, // PartyB should be the same as BusinessShortCode for paybill
     PhoneNumber: formattedPhone,
     CallBackURL: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mpesa-callback`,
     AccountReference: `BDC2025-${registrationId}`,
