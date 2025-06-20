@@ -79,7 +79,7 @@ async function initiateSTKPush(token: string, phoneNumber: string, amount: numbe
     TransactionType: 'CustomerPayBillOnline',
     Amount: amount,
     PartyA: formattedPhone,
-    PartyB: shortcode,
+    PartyB: '254759539169', // Updated to use the specific number
     PhoneNumber: formattedPhone,
     CallBackURL: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mpesa-callback`,
     AccountReference: `BDC2025-${registrationId}`,
